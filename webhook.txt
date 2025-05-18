@@ -1,1 +1,2 @@
 test webhook
+now both pipeline and freestyle jobs should execute
