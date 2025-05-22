@@ -13,8 +13,8 @@ node {
 
     // Safe parameter fallback
     // def BRANCH_NAME = params.BRANCH_NAME ?: 'main'
-    def ENV = params.ENV ?: 'dev'
-    def RUN_TESTS = params.RUN_TESTS != null ? params.RUN_TESTS : true
+    // def ENV = params.ENV ?: 'dev'
+    // def RUN_TESTS = params.RUN_TESTS != null ? params.RUN_TESTS : true
 
     try {
         stage('Clone Repo') {
