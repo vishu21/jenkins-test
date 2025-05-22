@@ -1,0 +1,45 @@
+properties([
+  parameters([
+    string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch to build')
+    choice(name: 'ENV', choices: ['dev', 'staging', 'prod'], description: 'Select environment')
+    booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run unit tests?')
+  ])
+])
+
+node {
+
+    // Environment variable
+    env.PROJECT_NAME = "jenkins-test"
+
+    // Safe parameter fallback
+    def BRANCH_NAME = params.BRANCH_NAME ?: 'main'
+    def ENV = params.ENV ?: 'dev'
+    def RUN_TESTS = params.RUN_TESTS != null ? params.RUN_TESTS : true
+
+    try {
+        stage('Clone Repo') {
+            git branch: BRANCH_NAME, credentialsId: 'github-pat', url: 'https://github.com/vishu21/jenkins-test.git'
+        }
+
+        stage('Build') {
+            echo "Building ${ENV} for ${env.PROJECT_NAME}"
+        }
+
+        if (RUN_TESTS) {
+            stage('Test') {
+                echo "Running tests for ${env.PROJECT_NAME}..."
+            }
+        }
+
+        // Success
+        echo '✅ Build completed successfully!'
+        mail to: 'vbrar6076@gmail.com',
+             subject: "Jenkins Job completed: ${env.PROJECT_NAME} [${env.BUILD_NUMBER}]",
+             body: "Check the console output at ${env.BUILD_URL}"
+
+    } catch (e) {
+        // Failure
+        echo '❌ Build failed!'
+        throw e
+    }
+}
