@@ -27,7 +27,7 @@ pipeline {
 
         stage('Test') {
             when {
-                expression: { return params.RUN_TESTS }
+                expression { return params.RUN_TESTS }
             }
             steps {
                 echo "Running tests for ${env.PROJECT_NAME}..."
