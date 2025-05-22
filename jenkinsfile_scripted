@@ -23,7 +23,7 @@ node {
 
         stage('Build') {
             echo "Building ${ENV} for ${PROJECT_NAME}"
-            sh 'mkdir -p target && echo "fake jar content" > target/app.jar'
+            sh 'mkdir -p target && echo "fake jar content - scripted" > target/app.jar'
 
             // ✅ Archive build artifacts
             archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
