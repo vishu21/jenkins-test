@@ -22,7 +22,11 @@ node {
         }
 
         stage('Build') {
-            echo "Building ${params.ENV} for ${env.PROJECT_NAME}"
+            echo "Building ${ENV} for ${PROJECT_NAME}"
+            sh 'mkdir -p target && echo "fake jar content" > target/app.jar'
+
+            // ✅ Archive build artifacts
+            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
         }
 
         if (RUN_TESTS) {
