@@ -47,6 +47,16 @@ pipeline {
                 }
             }
         }
+        stage('Approval') {
+            steps {
+                input message: 'Deploy to production?', ok: 'Yes, deploy!'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to production...'
+            }
+        }
     }
 
     post {
