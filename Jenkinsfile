@@ -21,6 +21,11 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building ${params.ENV} for ${env.PROJECT_NAME}"
+                // Simulate a build output
+                sh 'mkdir -p target && echo "fake jar content" > target/app.jar'
+                
+                // ✅ Archive the JAR file
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
 
