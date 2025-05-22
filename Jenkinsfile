@@ -38,8 +38,9 @@ pipeline {
     post {
         success {
             echo '✅ Build completed successfully!'
-            echo '✅ Build successful! Sending Slack notification...'
-            slackSend(channel: '#devops', message: "✅ Job '${env.PROJECT_NAME}' succeeded.")
+            mail to: 'vbrar6076@gmail.com',
+             subject: "Jenkins Job completed: ${env.PROJECT_NAME} [${env.BUILD_NUMBER}]",
+             body: "Check the console output at ${env.BUILD_URL}"
         }
         failure {
             echo '❌ Build failed!'
