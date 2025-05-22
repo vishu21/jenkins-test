@@ -25,9 +25,22 @@ node {
             echo "Building ${params.ENV} for ${env.PROJECT_NAME}"
         }
 
+        
+
         if (RUN_TESTS) {
             stage('Test') {
                 echo "Running tests for ${env.PROJECT_NAME}..."
+            }
+
+            stage('Parallel Stages') {
+                parallel (
+                    "Unit Tests": {
+                        echo 'Running unit tests...'
+                    },
+                    "Integration Tests": {
+                        echo 'Running integration tests...'
+                    }
+                )
             }
         }
 
