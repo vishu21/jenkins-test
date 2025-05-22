@@ -25,12 +25,26 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Conditional Test') {
             when {
                 expression { return params.RUN_TESTS }
             }
             steps {
                 echo "Running tests for ${env.PROJECT_NAME}..."
+            }
+        }
+        stage('Parallel Test') {
+            parallel {
+                stage('Unit Tests') {
+                     steps {
+                        echo 'Running unit tests...'
+                    }
+                }
+                stage('Integration Tests'){
+                    steps {
+                        echo 'Running integration tests...'
+                    }
+                }
             }
         }
     }
