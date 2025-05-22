@@ -15,7 +15,7 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                git branch: "${prams.BRANCH_NAME}", credentialsId: 'github-pat', url: 'https://github.com/vishu21/jenkins-test.git'
+                git branch: "${params.BRANCH_NAME}", credentialsId: 'github-pat', url: 'https://github.com/vishu21/jenkins-test.git'
             }
         }
 
