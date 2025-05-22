@@ -33,20 +33,24 @@ pipeline {
                 echo "Running tests for ${env.PROJECT_NAME}..."
             }
         }
-        stage('Parallel Test') {
-            parallel {
-                stage('Unit Tests') {
-                     steps {
-                        echo 'Running unit tests...'
-                    }
-                }
-                stage('Integration Tests'){
-                    steps {
-                        echo 'Running integration tests...'
-                    }
+        stage('Tests in Parallel') {
+            when {
+                expression { return params.RUN_TESTS }
+            }
+            steps {
+                script {
+                    parallel(
+                        'Unit Tests': {
+                            echo 'Running unit tests...'
+                        },
+                        'Integration Tests': {
+                            echo 'Running integration tests...'
+                        }
+                    )
                 }
             }
         }
+
         stage('Approval') {
             steps {
                 input message: 'Deploy to production?', ok: 'Yes, deploy!'
