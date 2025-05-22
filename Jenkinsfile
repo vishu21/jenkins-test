@@ -38,6 +38,8 @@ pipeline {
     post {
         success {
             echo '✅ Build completed successfully!'
+            echo '✅ Build successful! Sending Slack notification...'
+            slackSend(channel: '#devops', message: "✅ Job '${env.PROJECT_NAME}' succeeded.")
         }
         failure {
             echo '❌ Build failed!'
