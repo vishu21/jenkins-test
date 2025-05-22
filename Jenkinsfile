@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -33,6 +32,7 @@ pipeline {
                 echo "Running tests for ${env.PROJECT_NAME}..."
             }
         }
+
         stage('Tests in Parallel') {
             when {
                 expression { return params.RUN_TESTS }
@@ -56,6 +56,7 @@ pipeline {
                 input message: 'Deploy to production?', ok: 'Yes, deploy!'
             }
         }
+
         stage('Deploy') {
             steps {
                 echo 'Deploying to production...'
@@ -67,8 +68,8 @@ pipeline {
         success {
             echo '✅ Build completed successfully!'
             mail to: 'vbrar6076@gmail.com',
-             subject: "Jenkins Job completed: ${env.PROJECT_NAME} [${env.BUILD_NUMBER}]",
-             body: "Check the console output at ${env.BUILD_URL}"
+                 subject: "Jenkins Job completed: ${env.PROJECT_NAME} [${env.BUILD_NUMBER}]",
+                 body: "Check the console output at ${env.BUILD_URL}"
         }
         failure {
             echo '❌ Build failed!'
