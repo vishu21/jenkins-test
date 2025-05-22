@@ -25,8 +25,6 @@ node {
             echo "Building ${params.ENV} for ${env.PROJECT_NAME}"
         }
 
-        
-
         if (RUN_TESTS) {
             stage('Test') {
                 echo "Running tests for ${env.PROJECT_NAME}..."
@@ -42,6 +40,13 @@ node {
                     }
                 )
             }
+        }
+
+        stage('Approval') {
+            input message: 'Proceed with deployment?'
+        }
+        stage('Deploy') {
+            echo 'Deploying to production...'
         }
 
         // Success
