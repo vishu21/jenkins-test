@@ -1,9 +1,9 @@
 properties([
-  parameters([
-    string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch to build')
-    choice(name: 'ENV', choices: ['dev', 'staging', 'prod'], description: 'Select environment')
-    booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run unit tests?')
-  ])
+    parameters([
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch to build'),
+        choice(name: 'ENV', choices: ['dev', 'staging', 'prod'], description: 'Select environment'),
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run unit tests?')
+    ])
 ])
 
 node {
