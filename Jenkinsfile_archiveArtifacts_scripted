@@ -1,0 +1,60 @@
+node('controller-node') {
+    def imageName = "vbrar6076/webapp-demo"
+    def imageTag = "latest"
+    def dockerHubCreds = "docker-login"
+    def slackWebhook = ''
+
+    stage('Clone Repo & Archive Source') {
+        git branch: 'main', url: 'https://github.com/vishu21/webapp-demo.git'
+        archiveArtifacts artifacts: '**/*', fingerprint: true
+    }
+
+    stage('Load Slack Credential') {
+        slackWebhook = credentials('slack-webhook')
+    }
+}
+
+node('docker') {
+    def imageName = "vbrar6076/webapp-demo"
+    def imageTag = "latest"
+    def dockerHubCreds = "docker-login"
+    def slackWebhook = credentials('slack-webhook')
+
+    try {
+        stage('Unarchive & Build Docker Image') {
+            unarchive mapping: ['**/*': '.']
+            sh "docker build -t ${imageName}:${imageTag} ."
+        }
+
+        stage('Push to Docker Hub') {
+            withCredentials([usernamePassword(credentialsId: dockerHubCreds, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push '"${imageName}:${imageTag}"'
+                    docker logout
+                '''
+            }
+        }
+
+        stage('Cleanup') {
+            sh "docker rmi ${imageName}:${imageTag} || true"
+        }
+
+        stage('Slack Success Notification') {
+            sh """
+                curl -X POST -H 'Content-type: application/json' \
+                --data '{"text":"✅ SUCCESS: Job ${env.JOB_NAME} #${env.BUILD_NUMBER} completed successfully."}' \
+                ${slackWebhook}
+            """
+        }
+    } catch (err) {
+        stage('Slack Failure Notification') {
+            sh """
+                curl -X POST -H 'Content-type: application/json' \
+                --data '{"text":"❌ FAILURE: Job ${env.JOB_NAME} #${env.BUILD_NUMBER} failed."}' \
+                ${slackWebhook}
+            """
+        }
+        throw err
+    }
+}
