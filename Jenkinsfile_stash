@@ -37,25 +37,32 @@ pipeline {
                 }
             }
         }
+
+        stage('Cleanup') {
+            agent { label 'docker' }
+            steps {
+                sh 'docker rmi $IMAGE_NAME:$IMAGE_TAG || true'
+            }
+        }
     }
 
     post {
         success {
             node('docker') {
-            sh '''
-                curl -X POST -H 'Content-type: application/json' \
-                --data '{"text":"✅ SUCCESS: Job '"$JOB_NAME"' #'"$BUILD_NUMBER"' completed successfully."}' \
-                $SLACK_WEBHOOK
-            '''
+                sh '''
+                    curl -X POST -H 'Content-type: application/json' \
+                    --data '{"text":"✅ SUCCESS: Job '"$JOB_NAME"' #'"$BUILD_NUMBER"' completed successfully."}' \
+                    $SLACK_WEBHOOK
+                '''
             }
         }
         failure {
             node('docker') {
-            sh '''
-                curl -X POST -H 'Content-type: application/json' \
-                --data '{"text":"❌ FAILURE: Job '"$JOB_NAME"' #'"$BUILD_NUMBER"' failed."}' \
-                $SLACK_WEBHOOK
-            '''
+                sh '''
+                    curl -X POST -H 'Content-type: application/json' \
+                    --data '{"text":"❌ FAILURE: Job '"$JOB_NAME"' #'"$BUILD_NUMBER"' failed."}' \
+                    $SLACK_WEBHOOK
+                '''
             }
         }
     }
