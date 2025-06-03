@@ -28,11 +28,11 @@ node('docker') {
 
         stage('Push to Docker Hub') {
             withCredentials([usernamePassword(credentialsId: dockerHubCreds, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                sh '''
+                sh """
                     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    docker push '"${imageName}:${imageTag}"'
+                    docker push ${imageName}:${imageTag}
                     docker logout
-                '''
+                """
             }
         }
 
