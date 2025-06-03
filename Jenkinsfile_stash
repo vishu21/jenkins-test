@@ -1,0 +1,62 @@
+pipeline {
+    agent none
+
+    environment {
+        IMAGE_NAME = "vbrar6076/webapp-demo"
+        IMAGE_TAG = "latest"
+        DOCKER_HUB_CREDS = "docker-login"
+        SLACK_WEBHOOK = credentials('slack-webhook')
+    }
+
+    stages {
+        stage('Clone Repo') {
+            agent { label 'controller-node' }
+            steps {
+                git branch: 'main', url: 'https://github.com/vishu21/webapp-demo.git'
+                stash name: 'source-code', includes: '**/*'
+            }
+        }
+
+        stage('Build Docker Image') {
+            agent { label 'docker' }
+            steps {
+                unstash 'source-code'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            agent { label 'docker' }
+            steps {
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDS}", passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME:$IMAGE_TAG
+                        docker logout
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            node('docker') {
+            sh '''
+                curl -X POST -H 'Content-type: application/json' \
+                --data '{"text":"✅ SUCCESS: Job '"$JOB_NAME"' #'"$BUILD_NUMBER"' completed successfully."}' \
+                $SLACK_WEBHOOK
+            '''
+            }
+        }
+        failure {
+            node('docker') {
+            sh '''
+                curl -X POST -H 'Content-type: application/json' \
+                --data '{"text":"❌ FAILURE: Job '"$JOB_NAME"' #'"$BUILD_NUMBER"' failed."}' \
+                $SLACK_WEBHOOK
+            '''
+            }
+        }
+    }
+}
